@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#070b12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="ATLAS">
+
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="style.css">
+
+  <title>ATLAS</title>
+</head>
+
+<body>
+
+<main class="app">
+
+<header>
+  <div>
+    <p class="eyebrow">
+      ADAPTIVE TASK & LEARNING ASSISTANCE SYSTEM
+    </p>
+
+    <h1>A.T.L.A.S.</h1>
+  </div>
+
+  <span id="status" class="status">READY</span>
+</header>
+
+
+<section class="hero">
+
+  <button
+    id="orb"
+    class="orb"
+    type="button"
+    aria-label="Talk to ATLAS"
+  >
+    <span class="orb-core"></span>
+  </button>
+
+  <h2 id="prompt">Tap to speak</h2>
+
+  <p id="subprompt">
+    ATLAS V1 • Voice Interface
+  </p>
+
+</section>
+
+
+<section
+  id="conversation"
+  class="conversation"
+  aria-live="polite"
+>
+
+  <div class="message atlas">
+
+    <span>ATLAS</span>
+
+    <p>
+      Systems online. Tap the center control and speak.
+    </p>
+
+  </div>
+
+</section>
+
+
+<form id="chatForm" class="composer">
+
+  <input
+    id="messageInput"
+    type="text"
+    autocomplete="off"
+    placeholder="Message ATLAS…"
+    aria-label="Message ATLAS"
+  >
+
+  <button type="submit">
+    Send
+  </button>
+
+</form>
+
+
+<p class="note">
+  ATLAS V1
+</p>
+
+</main>
+
+<script src="app.js"></script>
+
+</body>
+</html>
