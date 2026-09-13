@@ -5,13 +5,19 @@ const conversation = document.getElementById("conversation");
 const form = document.getElementById("chatForm");
 const input = document.getElementById("messageInput");
 
+const ATLAS_CORE =
+  "https://atlas-core.kingofpuppys123576.workers.dev/";
+
 function addMessage(role, text) {
   const box = document.createElement("div");
   box.className = `message ${role === "YOU" ? "user" : "atlas"}`;
+
   const label = document.createElement("span");
   label.textContent = role;
+
   const p = document.createElement("p");
   p.textContent = text;
+
   box.append(label, p);
   conversation.appendChild(box);
   conversation.scrollTop = conversation.scrollHeight;
@@ -19,31 +25,83 @@ function addMessage(role, text) {
 
 function speak(text) {
   if (!("speechSynthesis" in window)) return;
+
   speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.rate = 0.95;
-  u.pitch = 0.9;
-  speechSynthesis.speak(u);
+
+  const voice = new SpeechSynthesisUtterance(text);
+  voice.rate = 0.95;
+  voice.pitch = 0.9;
+
+  speechSynthesis.speak(voice);
 }
 
-function localReply(text) {
-  const reply = `I heard: "${text}". My voice interface is working. Connect my AI backend next so I can answer questions and use tools.`;
-  addMessage("ATLAS", reply);
-  speak(reply);
+async function askAtlas(text) {
+  statusEl.textContent = "THINKING";
+  promptEl.textContent = "Processing…";
+
+  try {
+    const response = await fetch(ATLAS_CORE, {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json"
+      },
+
+      body: JSON.stringify({
+        message: text
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`ATLAS Core returned ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    const reply =
+      data.reply || "ATLAS Core did not return a response.";
+
+    addMessage("ATLAS", reply);
+    speak(reply);
+
+    statusEl.textContent = "READY";
+    promptEl.textContent = "Tap to speak";
+
+  } catch (error) {
+    console.error(error);
+
+    const reply =
+      "I couldn't establish a connection with ATLAS Core.";
+
+    addMessage("ATLAS", reply);
+    speak(reply);
+
+    statusEl.textContent = "CONNECTION ERROR";
+    promptEl.textContent = "Core unavailable";
+  }
 }
 
-form.addEventListener("submit", e => {
-  e.preventDefault();
+form.addEventListener("submit", (event) => {
+  event.preventDefault();
+
   const text = input.value.trim();
+
   if (!text) return;
+
   addMessage("YOU", text);
   input.value = "";
-  localReply(text);
+
+  askAtlas(text);
 });
 
-const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+const SpeechRecognition =
+  window.SpeechRecognition ||
+  window.webkitSpeechRecognition;
+
 if (SpeechRecognition) {
+
   const recognition = new SpeechRecognition();
+
   recognition.lang = "en-US";
   recognition.interimResults = false;
   recognition.continuous = false;
@@ -51,35 +109,52 @@ if (SpeechRecognition) {
   orb.addEventListener("click", () => {
     try {
       recognition.start();
+
       orb.classList.add("listening");
+
       statusEl.textContent = "LISTENING";
       promptEl.textContent = "Listening…";
+
     } catch {}
   });
 
-  recognition.onresult = e => {
-    const text = e.results[0][0].transcript;
+  recognition.onresult = (event) => {
+    const text =
+      event.results[0][0].transcript;
+
     addMessage("YOU", text);
-    localReply(text);
+
+    askAtlas(text);
   };
 
   recognition.onend = () => {
     orb.classList.remove("listening");
-    statusEl.textContent = "READY";
-    promptEl.textContent = "Tap to speak";
+
+    if (statusEl.textContent === "LISTENING") {
+      statusEl.textContent = "READY";
+      promptEl.textContent = "Tap to speak";
+    }
   };
 
   recognition.onerror = () => {
     orb.classList.remove("listening");
+
     statusEl.textContent = "VOICE ERROR";
     promptEl.textContent = "Use text or try again";
   };
+
 } else {
+
   orb.addEventListener("click", () => {
-    addMessage("ATLAS", "This browser does not expose speech recognition here. Text chat still works.");
+    addMessage(
+      "ATLAS",
+      "Speech recognition isn't available in this browser. You can still type to me."
+    );
   });
 }
 
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("./sw.js").catch(() => {});
+  navigator.serviceWorker
+    .register("./sw.js")
+    .catch(console.error);
 }
