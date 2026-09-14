@@ -23,16 +23,36 @@ function addMessage(role, text) {
   conversation.scrollTop = conversation.scrollHeight;
 }
 
-function speak(text) {
-  if (!("speechSynthesis" in window)) return;
+async function speak(text) {
+  try {
+    const response = await fetch(`${ATLAS_CORE}voice`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        text: text
+      })
+    });
 
-  speechSynthesis.cancel();
+    if (!response.ok) {
+      throw new Error(`ATLAS Voice returned ${response.status}`);
+    }
 
-  const voice = new SpeechSynthesisUtterance(text);
-  voice.rate = 0.95;
-  voice.pitch = 0.9;
+    const audioBlob = await response.blob();
+    const audioUrl = URL.createObjectURL(audioBlob);
+    const audio = new Audio(audioUrl);
 
-  speechSynthesis.speak(voice);
+    audio.addEventListener("ended", () => {
+      URL.revokeObjectURL(audioUrl);
+    });
+
+    await audio.play();
+
+  } catch (error) {
+    console.error("ATLAS Voice error:", error);
+  }
+}
 }
 
 async function askAtlas(text) {
