@@ -36,7 +36,7 @@ async function speak(text) {
     });
 
     if (!response.ok) {
-      throw new Error(`ATLAS Voice returned ${response.status}`);
+      throw new Error(`MICHAEL Voice returned ${response.status}`);
     }
 
     const audioBlob = await response.blob();
@@ -50,7 +50,7 @@ async function speak(text) {
     await audio.play();
 
   } catch (error) {
-    console.error("ATLAS Voice error:", error);
+    console.error("MICHAEL Voice error:", error);
   }
 }
 
@@ -72,15 +72,15 @@ async function askAtlas(text) {
     });
 
     if (!response.ok) {
-      throw new Error(`ATLAS Core returned ${response.status}`);
+      throw new Error(`MICHAEL Core returned ${response.status}`);
     }
 
     const data = await response.json();
 
     const reply =
-      data.reply || "ATLAS Core did not return a response.";
+     data.reply || "MICHAEL Core did not return a response.";
 
-    addMessage("ATLAS", reply);
+    addMessage("MICHAEL", reply);
     speak(reply);
 
     statusEl.textContent = "READY";
@@ -90,9 +90,9 @@ async function askAtlas(text) {
     console.error(error);
 
     const reply =
-      "I couldn't establish a connection with ATLAS Core.";
+     "I couldn't establish a connection with MICHAEL Core.";
 
-    addMessage("ATLAS", reply);
+    addMessage("MICHAEL", reply);
     speak(reply);
 
     statusEl.textContent = "CONNECTION ERROR";
@@ -166,7 +166,7 @@ if (SpeechRecognition) {
 
   orb.addEventListener("click", () => {
     addMessage(
-      "ATLAS",
+      "MICHAEL",
       "Speech recognition isn't available in this browser. You can still type to me."
     );
   });
