@@ -53,7 +53,6 @@ async function speak(text) {
     console.error("ATLAS Voice error:", error);
   }
 }
-}
 
 async function askAtlas(text) {
   statusEl.textContent = "THINKING";
